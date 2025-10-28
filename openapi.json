@@ -1,0 +1,2030 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/auth/register": {
+      "post": {
+        "description": "Permite registrar un nuevo usuario",
+        "operationId": "AuthController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthRegisterRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Usuario registrado correctamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthRegisterResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "409": {
+            "description": "El recurso ya existe"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        },
+        "summary": "Crear nuevo registro de un nuevo usuario",
+        "tags": [
+          "Autentication"
+        ]
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "description": "Permite iniciar sesión con un usuario registrado",
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthLoginRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Inicio de sesión exitoso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthLoginResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "401": {
+            "description": "Acceso denegado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        },
+        "summary": "Iniciar sesión",
+        "tags": [
+          "Autentication"
+        ]
+      }
+    },
+    "/api/auth/refresh-token": {
+      "post": {
+        "description": "Permite renovar los tokens de autenticación",
+        "operationId": "AuthController_refreshToken",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthRefreshTokenRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tokens renovados correctamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthRefreshTokenResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "401": {
+            "description": "Acceso denegado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        },
+        "summary": "Renovar tokens de autenticación",
+        "tags": [
+          "Autentication"
+        ]
+      }
+    },
+    "/api/auth/forgot-password": {
+      "post": {
+        "description": "Endpoint para solicitar un restablecimiento de contraseña",
+        "operationId": "AuthController_forgotPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthForgotPasswordRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Código de verificación enviado correctamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthForgotPasswordResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "401": {
+            "description": "Acceso denegado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        },
+        "summary": "Olvidé mi contraseña",
+        "tags": [
+          "Autentication"
+        ]
+      }
+    },
+    "/api/auth/reset-password": {
+      "patch": {
+        "description": "Endpoint para actualizar la contraseña del usuario",
+        "operationId": "AuthController_resetPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthResetPasswordRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Contraseña actualizada correctamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResetPasswordResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "401": {
+            "description": "Acceso denegado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        },
+        "summary": "Actualizar contraseña",
+        "tags": [
+          "Autentication"
+        ]
+      }
+    },
+    "/api/user/paginated": {
+      "get": {
+        "description": "Endpoint to list all users with pagination support",
+        "operationId": "UsersController_findPaginated",
+        "parameters": [
+          {
+            "name": "index",
+            "required": false,
+            "in": "query",
+            "description": "Page number (1-based)",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Items per page",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Filter by username",
+            "schema": {
+              "example": "juan",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Users found successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsersPaginatedResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "List users with pagination",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/user/{id}": {
+      "get": {
+        "description": "Endpoint to find a user by their unique ID",
+        "operationId": "UsersController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User found successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsersFindOneResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found"
+          }
+        },
+        "summary": "Find a user by ID",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/user/{id}/status": {
+      "patch": {
+        "description": "Endpoint to update user status active/inactive",
+        "operationId": "UsersController_updateStatus",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User status updated succesfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsersUpdateStatusResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "User not found"
+          }
+        },
+        "summary": "Update user status",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/products": {
+      "post": {
+        "description": "Permite crear un nuevo producto/repuesto",
+        "operationId": "ProductsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductsCreateRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Producto creado correctamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductsCreateResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "409": {
+            "description": "El recurso ya existe"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        },
+        "summary": "Crear nuevo producto",
+        "tags": [
+          "Products"
+        ]
+      },
+      "get": {
+        "description": "Permite obtener una lista paginada de productos",
+        "operationId": "ProductsController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Productos encontrados correctamente"
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        },
+        "summary": "Listar productos",
+        "tags": [
+          "Products"
+        ]
+      }
+    },
+    "/api/products/{id}": {
+      "get": {
+        "description": "Permite obtener un producto específico por su ID",
+        "operationId": "ProductsController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Producto encontrado correctamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductsCreateResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "404": {
+            "description": "Recurso no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        },
+        "summary": "Obtener producto por ID",
+        "tags": [
+          "Products"
+        ]
+      },
+      "patch": {
+        "description": "Permite actualizar un producto existente",
+        "operationId": "ProductsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductsUpdateRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Producto actualizado correctamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductsUpdateResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "404": {
+            "description": "Recurso no encontrado"
+          },
+          "409": {
+            "description": "El recurso ya existe"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        },
+        "summary": "Actualizar producto",
+        "tags": [
+          "Products"
+        ]
+      },
+      "delete": {
+        "description": "Permite eliminar un producto (soft delete)",
+        "operationId": "ProductsController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Producto eliminado correctamente"
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "404": {
+            "description": "Recurso no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        },
+        "summary": "Eliminar producto",
+        "tags": [
+          "Products"
+        ]
+      }
+    },
+    "/api/suppliers": {
+      "post": {
+        "description": "Permite crear un nuevo proveedor de repuestos",
+        "operationId": "SuppliersController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SuppliersCreateRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Proveedor creado correctamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuppliersCreateResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "409": {
+            "description": "El recurso ya existe"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        },
+        "summary": "Crear nuevo proveedor",
+        "tags": [
+          "Suppliers"
+        ]
+      },
+      "get": {
+        "description": "Permite obtener una lista paginada de proveedores",
+        "operationId": "SuppliersController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Proveedores encontrados correctamente"
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        },
+        "summary": "Listar proveedores",
+        "tags": [
+          "Suppliers"
+        ]
+      }
+    },
+    "/api/suppliers/{id}": {
+      "get": {
+        "description": "Permite obtener un proveedor específico con sus productos",
+        "operationId": "SuppliersController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Proveedor encontrado correctamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuppliersCreateResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "404": {
+            "description": "Recurso no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        },
+        "summary": "Obtener proveedor por ID",
+        "tags": [
+          "Suppliers"
+        ]
+      },
+      "patch": {
+        "description": "Permite actualizar un proveedor existente",
+        "operationId": "SuppliersController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SuppliersUpdateRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Proveedor actualizado correctamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuppliersUpdateResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "404": {
+            "description": "Recurso no encontrado"
+          },
+          "409": {
+            "description": "El recurso ya existe"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        },
+        "summary": "Actualizar proveedor",
+        "tags": [
+          "Suppliers"
+        ]
+      },
+      "delete": {
+        "description": "Permite eliminar un proveedor (soft delete) si no tiene productos activos",
+        "operationId": "SuppliersController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Proveedor eliminado correctamente"
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "404": {
+            "description": "Recurso no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        },
+        "summary": "Eliminar proveedor",
+        "tags": [
+          "Suppliers"
+        ]
+      }
+    },
+    "/api/quotes/send-email": {
+      "post": {
+        "description": "Endpoint para enviar cotizaciones por email usando Gmail con App Password. Envía un email con formato HTML profesional incluyendo los detalles de la cotización, productos, precios y totales.",
+        "operationId": "QuotesController_sendEmail",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendEmailQuoteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Email enviado correctamente"
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        },
+        "summary": "Enviar cotización por email",
+        "tags": [
+          "Quotes"
+        ]
+      }
+    },
+    "/api/quotes": {
+      "post": {
+        "description": "Permite crear una nueva cotización con código único",
+        "operationId": "QuotesController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuotesCreateRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Cotización creada correctamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuotesCreateResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "404": {
+            "description": "Recurso no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        },
+        "summary": "Crear nueva cotización",
+        "tags": [
+          "Quotes"
+        ]
+      },
+      "get": {
+        "description": "Permite obtener una lista paginada de cotizaciones",
+        "operationId": "QuotesController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Cotizaciones encontradas correctamente"
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        },
+        "summary": "Listar cotizaciones",
+        "tags": [
+          "Quotes"
+        ]
+      }
+    },
+    "/api/quotes/{id}": {
+      "get": {
+        "description": "Permite obtener una cotización específica con todos sus detalles",
+        "operationId": "QuotesController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cotización encontrada correctamente"
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "404": {
+            "description": "Recurso no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        },
+        "summary": "Obtener cotización por ID",
+        "tags": [
+          "Quotes"
+        ]
+      },
+      "patch": {
+        "description": "Permite actualizar el estado de una cotización (PENDIENTE, ENVIADA, ACEPTADA, RECHAZADA)",
+        "operationId": "QuotesController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuotesUpdateRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cotización actualizada correctamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuotesUpdateResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "404": {
+            "description": "Recurso no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        },
+        "summary": "Actualizar cotización",
+        "tags": [
+          "Quotes"
+        ]
+      },
+      "delete": {
+        "description": "Permite marcar una cotización como rechazada",
+        "operationId": "QuotesController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cotización eliminada correctamente"
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "404": {
+            "description": "Recurso no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        },
+        "summary": "Eliminar cotización",
+        "tags": [
+          "Quotes"
+        ]
+      }
+    },
+    "/api/sales": {
+      "post": {
+        "description": "Permite crear una nueva venta y actualizar automáticamente el stock",
+        "operationId": "SalesController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SalesCreateRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Venta creada correctamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SalesCreateResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "404": {
+            "description": "Recurso no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        },
+        "summary": "Crear nueva venta",
+        "tags": [
+          "Sales"
+        ]
+      },
+      "get": {
+        "description": "Permite obtener una lista paginada de ventas",
+        "operationId": "SalesController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ventas encontradas correctamente"
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        },
+        "summary": "Listar ventas",
+        "tags": [
+          "Sales"
+        ]
+      }
+    },
+    "/api/sales/{id}": {
+      "get": {
+        "description": "Permite obtener una venta específica con todos sus detalles",
+        "operationId": "SalesController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Venta encontrada correctamente"
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "404": {
+            "description": "Recurso no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        },
+        "summary": "Obtener venta por ID",
+        "tags": [
+          "Sales"
+        ]
+      }
+    },
+    "/api/log-emails/{id}": {
+      "get": {
+        "description": "Permite obtener un registro de envío de email específico",
+        "operationId": "LogEmailsController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Log de email encontrado correctamente"
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "404": {
+            "description": "Recurso no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        },
+        "summary": "Obtener log de email por ID",
+        "tags": [
+          "LogEmails"
+        ]
+      }
+    },
+    "/api/log-emails": {
+      "get": {
+        "description": "Permite obtener una lista paginada de logs de envío de emails",
+        "operationId": "LogEmailsController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Logs de emails encontrados correctamente"
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        },
+        "summary": "Listar logs de emails",
+        "tags": [
+          "LogEmails"
+        ]
+      }
+    },
+    "/api": {
+      "get": {
+        "operationId": "AppController_getHello",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Sistema de Almacén API",
+    "description": "API para gestión de almacén - Productos, Cotizaciones, Ventas y Proveedores",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [
+    {
+      "url": "http://localhost:4000",
+      "description": "Servidor Local"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "JWT-auth": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http",
+        "name": "JWT",
+        "description": "Enter JWT token",
+        "in": "header"
+      }
+    },
+    "schemas": {
+      "AuthRegisterRequestDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Juan Pérez",
+            "description": "Nombre completo del usuario"
+          },
+          "username": {
+            "type": "string",
+            "example": "juan@ejemplo.com",
+            "description": "Username del usuario (puede ser email, debe ser único)"
+          },
+          "email": {
+            "type": "string",
+            "example": "juan@ejemplo.com",
+            "description": "Email del usuario (debe ser único)"
+          },
+          "password": {
+            "type": "string",
+            "example": "Contraseña123!",
+            "description": "Contraseña del usuario (mínimo 6 caracteres, sin espacios)"
+          },
+          "confirmPassword": {
+            "type": "string",
+            "example": "Contraseña123!",
+            "description": "Confirmación de la contraseña (debe coincidir con password)"
+          },
+          "rol": {
+            "type": "string",
+            "example": "VENDEDOR",
+            "description": "Rol del usuario",
+            "enum": [
+              "ADMIN",
+              "VENDEDOR"
+            ],
+            "default": "VENDEDOR"
+          }
+        },
+        "required": [
+          "name",
+          "username",
+          "email",
+          "password",
+          "confirmPassword"
+        ]
+      },
+      "AuthRegisterResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Mensaje de respuesta de la operación",
+            "description": "Mensaje de éxito"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "AuthLoginRequestDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "usuario@ejemplo.com",
+            "description": "Username del usuario registrado (puede ser email o username normal)"
+          },
+          "password": {
+            "type": "string",
+            "example": "Contraseña123!",
+            "description": "Contraseña del usuario"
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ]
+      },
+      "AuthLoginResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Mensaje de respuesta de la operación",
+            "description": "Mensaje de éxito"
+          },
+          "access_token": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+            "description": "JWT de acceso (válido por 15 minutos)"
+          }
+        },
+        "required": [
+          "message",
+          "access_token"
+        ]
+      },
+      "AuthRefreshTokenRequestDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+            "description": "Refresh token válido para renovar el access token"
+          }
+        },
+        "required": [
+          "token"
+        ]
+      },
+      "AuthRefreshTokenResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Token renovado exitosamente",
+            "description": "Mensaje de confirmación"
+          },
+          "access_token": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+            "description": "Nuevo JWT de acceso (válido por 15 minutos)"
+          },
+          "refresh_token": {
+            "type": "string",
+            "example": "2024-01-15T10:30:00.000Z",
+            "description": "Renovación del token de acceso (válido por 7 días)"
+          }
+        },
+        "required": [
+          "message",
+          "access_token",
+          "refresh_token"
+        ]
+      },
+      "AuthForgotPasswordRequestDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "usuario@ejemplo.com",
+            "description": "Email del usuario (debe ser único)"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "AuthForgotPasswordResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Mensaje de respuesta de la operación",
+            "description": "Mensaje de éxito"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "AuthResetPasswordRequestDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "usuario@ejemplo.com",
+            "description": "Email del usuario (debe ser único)"
+          },
+          "code": {
+            "type": "string",
+            "example": "123456",
+            "description": "Código de verificación enviado al email"
+          },
+          "password": {
+            "type": "string",
+            "example": "Contraseña123!",
+            "description": "Contraseña del usuario (mínimo 6 caracteres, sin espacios)"
+          },
+          "confirmPassword": {
+            "type": "string",
+            "example": "Contraseña123!",
+            "description": "Confirmación de la contraseña (debe coincidir con password)"
+          }
+        },
+        "required": [
+          "email",
+          "code",
+          "password",
+          "confirmPassword"
+        ]
+      },
+      "AuthResetPasswordResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Mensaje de respuesta de la operación",
+            "description": "Mensaje de éxito"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "UsersFindOneResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "User found successfully"
+          },
+          "id": {
+            "type": "number",
+            "example": 1
+          },
+          "nombre": {
+            "type": "string",
+            "example": "Juan Pérez"
+          },
+          "email": {
+            "type": "string",
+            "example": "juan@mail.com"
+          },
+          "rol": {
+            "type": "string",
+            "example": "VENDEDOR",
+            "enum": [
+              "ADMIN",
+              "VENDEDOR"
+            ]
+          },
+          "activo": {
+            "type": "boolean",
+            "example": true
+          },
+          "fechaRegistro": {
+            "type": "string",
+            "example": "2024-01-01T00:00:00.000Z"
+          },
+          "createdAt": {
+            "type": "string",
+            "example": "2025-01-01T00:00:00.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "example": "2025-01-01T00:00:00.000Z"
+          },
+          "status_code": {
+            "type": "number",
+            "example": 200
+          }
+        },
+        "required": [
+          "message",
+          "id",
+          "nombre",
+          "email",
+          "rol",
+          "activo",
+          "fechaRegistro",
+          "status_code"
+        ]
+      },
+      "UsersPaginatedResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UsersFindOneResponseDto"
+            }
+          },
+          "currentPage": {
+            "type": "number",
+            "example": 1
+          },
+          "totalPages": {
+            "type": "number",
+            "example": 10
+          },
+          "totalItems": {
+            "type": "number",
+            "example": 100
+          }
+        },
+        "required": [
+          "items",
+          "currentPage",
+          "totalPages",
+          "totalItems"
+        ]
+      },
+      "UsersUpdateStatusResponseDto": {
+        "type": "object",
+        "properties": {
+          "status_code": {
+            "type": "number"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status_code",
+          "message"
+        ]
+      },
+      "ProductsCreateRequestDto": {
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "example": "Filtro de aceite motor"
+          },
+          "descripcion": {
+            "type": "string",
+            "example": "Filtro de aceite para motor 1.6L"
+          },
+          "precio": {
+            "type": "number",
+            "example": 25.5
+          },
+          "stock": {
+            "type": "number",
+            "example": 50
+          },
+          "categoria": {
+            "type": "string",
+            "example": "Filtros"
+          },
+          "proveedorId": {
+            "type": "number",
+            "example": 1
+          }
+        },
+        "required": [
+          "nombre",
+          "precio",
+          "stock",
+          "proveedorId"
+        ]
+      },
+      "ProductsCreateResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Product created successfully"
+          },
+          "id": {
+            "type": "number",
+            "example": 1
+          },
+          "nombre": {
+            "type": "string",
+            "example": "Filtro de aceite motor"
+          },
+          "descripcion": {
+            "type": "object",
+            "example": "Filtro de aceite para motor 1.6L"
+          },
+          "precio": {
+            "type": "number",
+            "example": 25.5
+          },
+          "stock": {
+            "type": "number",
+            "example": 50
+          },
+          "categoria": {
+            "type": "object",
+            "example": "Filtros"
+          },
+          "activo": {
+            "type": "boolean",
+            "example": true
+          },
+          "fechaRegistro": {
+            "type": "string",
+            "example": "2024-01-01T00:00:00.000Z"
+          },
+          "proveedorId": {
+            "type": "number",
+            "example": 1
+          },
+          "status_code": {
+            "type": "number",
+            "example": 201
+          }
+        },
+        "required": [
+          "message",
+          "id",
+          "nombre",
+          "precio",
+          "stock",
+          "activo",
+          "fechaRegistro",
+          "proveedorId",
+          "status_code"
+        ]
+      },
+      "ProductsUpdateRequestDto": {
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "example": "Filtro de aceite motor actualizado"
+          },
+          "descripcion": {
+            "type": "string",
+            "example": "Filtro de aceite para motor 1.6L actualizado"
+          },
+          "precio": {
+            "type": "number",
+            "example": 30
+          },
+          "stock": {
+            "type": "number",
+            "example": 75
+          },
+          "categoria": {
+            "type": "string",
+            "example": "Filtros Premium"
+          },
+          "proveedorId": {
+            "type": "number",
+            "example": 1
+          }
+        }
+      },
+      "ProductsUpdateResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Product updated successfully"
+          },
+          "status_code": {
+            "type": "number",
+            "example": 200
+          }
+        },
+        "required": [
+          "message",
+          "status_code"
+        ]
+      },
+      "SuppliersCreateRequestDto": {
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "example": "Auto Parts Inc."
+          },
+          "telefono": {
+            "type": "string",
+            "example": "+1234567890"
+          },
+          "email": {
+            "type": "string",
+            "example": "contacto@autoparts.com"
+          },
+          "direccion": {
+            "type": "string",
+            "example": "Av. Principal 123"
+          }
+        },
+        "required": [
+          "nombre"
+        ]
+      },
+      "SuppliersCreateResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Supplier created successfully"
+          },
+          "id": {
+            "type": "number",
+            "example": 1
+          },
+          "nombre": {
+            "type": "string",
+            "example": "Auto Parts Inc."
+          },
+          "telefono": {
+            "type": "object",
+            "example": "+1234567890"
+          },
+          "email": {
+            "type": "object",
+            "example": "contacto@autoparts.com"
+          },
+          "direccion": {
+            "type": "object",
+            "example": "Av. Principal 123"
+          },
+          "activo": {
+            "type": "boolean",
+            "example": true
+          },
+          "fechaRegistro": {
+            "type": "string",
+            "example": "2024-01-01T00:00:00.000Z"
+          },
+          "status_code": {
+            "type": "number",
+            "example": 201
+          }
+        },
+        "required": [
+          "message",
+          "id",
+          "nombre",
+          "activo",
+          "fechaRegistro",
+          "status_code"
+        ]
+      },
+      "SuppliersUpdateRequestDto": {
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "example": "Auto Parts Inc. Updated"
+          },
+          "telefono": {
+            "type": "string",
+            "example": "+1234567890"
+          },
+          "email": {
+            "type": "string",
+            "example": "contacto@autoparts.com"
+          },
+          "direccion": {
+            "type": "string",
+            "example": "Av. Principal 456"
+          }
+        }
+      },
+      "SuppliersUpdateResponseDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "ItemDto": {
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "example": "Filtro de aceite",
+            "description": "Nombre del producto"
+          },
+          "cantidad": {
+            "type": "number",
+            "example": 2,
+            "description": "Cantidad de productos"
+          },
+          "precioUnitario": {
+            "type": "number",
+            "example": 25.5,
+            "description": "Precio unitario del producto"
+          },
+          "subtotal": {
+            "type": "number",
+            "example": 51,
+            "description": "Subtotal (cantidad × precio unitario)"
+          }
+        },
+        "required": [
+          "nombre",
+          "cantidad",
+          "precioUnitario",
+          "subtotal"
+        ]
+      },
+      "SendEmailQuoteDto": {
+        "type": "object",
+        "properties": {
+          "emailDestino": {
+            "type": "string",
+            "example": "cliente@email.com",
+            "description": "Email del cliente al que se enviará la cotización"
+          },
+          "clienteNombre": {
+            "type": "string",
+            "example": "Juan Pérez",
+            "description": "Nombre completo del cliente"
+          },
+          "codigo": {
+            "type": "string",
+            "example": "COT-1234567890-001",
+            "description": "Código único de la cotización"
+          },
+          "fecha": {
+            "type": "string",
+            "example": "2024-01-15",
+            "description": "Fecha de la cotización (formato YYYY-MM-DD)"
+          },
+          "vendedorNombre": {
+            "type": "string",
+            "example": "María González",
+            "description": "Nombre del vendedor que generó la cotización"
+          },
+          "total": {
+            "type": "number",
+            "example": 125.5,
+            "description": "Total de la cotización en formato numérico"
+          },
+          "items": {
+            "description": "Lista de productos incluidos en la cotización",
+            "example": [
+              {
+                "nombre": "Filtro de aceite",
+                "cantidad": 2,
+                "precioUnitario": 25.5,
+                "subtotal": 51
+              },
+              {
+                "nombre": "Bujías",
+                "cantidad": 1,
+                "precioUnitario": 35,
+                "subtotal": 35
+              }
+            ],
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ItemDto"
+            }
+          }
+        },
+        "required": [
+          "emailDestino",
+          "clienteNombre",
+          "codigo",
+          "fecha",
+          "vendedorNombre",
+          "total",
+          "items"
+        ]
+      },
+      "QuoteItemDto": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "number",
+            "example": 1
+          },
+          "cantidad": {
+            "type": "number",
+            "example": 2
+          },
+          "precioUnitario": {
+            "type": "number",
+            "example": 25.5
+          }
+        },
+        "required": [
+          "productId",
+          "cantidad",
+          "precioUnitario"
+        ]
+      },
+      "QuotesCreateRequestDto": {
+        "type": "object",
+        "properties": {
+          "clienteNombre": {
+            "type": "string",
+            "example": "Juan Pérez"
+          },
+          "clienteEmail": {
+            "type": "string",
+            "example": "juan@email.com"
+          },
+          "items": {
+            "example": [
+              {
+                "productId": 1,
+                "cantidad": 2,
+                "precioUnitario": 25.5
+              },
+              {
+                "productId": 2,
+                "cantidad": 1,
+                "precioUnitario": 15
+              }
+            ],
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuoteItemDto"
+            }
+          }
+        },
+        "required": [
+          "clienteNombre",
+          "clienteEmail",
+          "items"
+        ]
+      },
+      "QuotesCreateResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Quote created successfully"
+          },
+          "id": {
+            "type": "number",
+            "example": 1
+          },
+          "codigo": {
+            "type": "string",
+            "example": "COT-2024-001"
+          },
+          "clienteNombre": {
+            "type": "string",
+            "example": "Juan Pérez"
+          },
+          "clienteEmail": {
+            "type": "string",
+            "example": "juan@email.com"
+          },
+          "total": {
+            "type": "number",
+            "example": 66
+          },
+          "estado": {
+            "type": "string",
+            "example": "PENDIENTE",
+            "enum": [
+              "PENDIENTE",
+              "ENVIADA",
+              "ACEPTADA",
+              "RECHAZADA"
+            ]
+          },
+          "status_code": {
+            "type": "number",
+            "example": 201
+          }
+        },
+        "required": [
+          "message",
+          "id",
+          "codigo",
+          "clienteNombre",
+          "clienteEmail",
+          "total",
+          "estado",
+          "status_code"
+        ]
+      },
+      "QuotesUpdateRequestDto": {
+        "type": "object",
+        "properties": {
+          "estado": {
+            "type": "string",
+            "example": "ENVIADA",
+            "enum": [
+              "PENDIENTE",
+              "ENVIADA",
+              "ACEPTADA",
+              "RECHAZADA"
+            ]
+          }
+        }
+      },
+      "QuotesUpdateResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Quote updated successfully"
+          },
+          "status_code": {
+            "type": "number",
+            "example": 200
+          }
+        },
+        "required": [
+          "message",
+          "status_code"
+        ]
+      },
+      "SaleItemDto": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "number",
+            "example": 1
+          },
+          "cantidad": {
+            "type": "number",
+            "example": 2
+          },
+          "precioUnitario": {
+            "type": "number",
+            "example": 25.5
+          }
+        },
+        "required": [
+          "productId",
+          "cantidad",
+          "precioUnitario"
+        ]
+      },
+      "SalesCreateRequestDto": {
+        "type": "object",
+        "properties": {
+          "metodoPago": {
+            "type": "string",
+            "example": "EFECTIVO",
+            "enum": [
+              "EFECTIVO",
+              "TRANSFERENCIA",
+              "TARJETA",
+              "CREDITO"
+            ]
+          },
+          "clienteNombre": {
+            "type": "string",
+            "example": "Juan Pérez"
+          },
+          "clienteEmail": {
+            "type": "string",
+            "example": "juan@email.com"
+          },
+          "clienteTelefono": {
+            "type": "string",
+            "example": "123456789"
+          },
+          "cotizacionId": {
+            "type": "number",
+            "example": 1
+          },
+          "items": {
+            "example": [
+              {
+                "productId": 1,
+                "cantidad": 2,
+                "precioUnitario": 25.5
+              },
+              {
+                "productId": 2,
+                "cantidad": 1,
+                "precioUnitario": 15
+              }
+            ],
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SaleItemDto"
+            }
+          }
+        },
+        "required": [
+          "metodoPago",
+          "clienteNombre",
+          "items"
+        ]
+      },
+      "SalesCreateResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Sale created successfully"
+          },
+          "id": {
+            "type": "number",
+            "example": 1
+          },
+          "fecha": {
+            "type": "string",
+            "example": "2024-01-15T00:00:00.000Z"
+          },
+          "total": {
+            "type": "number",
+            "example": 66
+          },
+          "metodoPago": {
+            "type": "string",
+            "example": "EFECTIVO",
+            "enum": [
+              "EFECTIVO",
+              "TRANSFERENCIA",
+              "TARJETA",
+              "CREDITO"
+            ]
+          },
+          "clienteNombre": {
+            "type": "string",
+            "example": "Juan Pérez"
+          },
+          "clienteEmail": {
+            "type": "object",
+            "example": "juan@email.com"
+          },
+          "status_code": {
+            "type": "number",
+            "example": 201
+          }
+        },
+        "required": [
+          "message",
+          "id",
+          "fecha",
+          "total",
+          "metodoPago",
+          "clienteNombre",
+          "status_code"
+        ]
+      }
+    }
+  }
+}

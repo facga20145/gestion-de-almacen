@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang='es'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <title>Cotización de Repuestos Automotrices</title>
+    <style>
+      body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f4f4f4;
+        color: #333;
+        padding: 0;
+        margin: 0;
+      }
+      .email-container {
+        max-width: 650px;
+        margin: 20px auto;
+        background: #ffffff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px 20px;
+        text-align: center;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 28px;
+      }
+      .content {
+        padding: 30px;
+      }
+      .quote-info {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+      }
+      .quote-info p {
+        margin: 8px 0;
+        font-size: 15px;
+      }
+      .quote-info strong {
+        color: #667eea;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+      }
+      th {
+        background: #667eea;
+        color: white;
+        padding: 12px;
+        text-align: left;
+        font-size: 14px;
+      }
+      td {
+        padding: 12px;
+        border-bottom: 1px solid #e9ecef;
+      }
+      tr:nth-child(even) {
+        background: #f8f9fa;
+      }
+      .total-box {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        text-align: right;
+        font-size: 24px;
+        font-weight: bold;
+      }
+      .total-box span {
+        font-size: 28px;
+      }
+      .footer {
+        background: #2c3e50;
+        color: white;
+        padding: 20px;
+        text-align: center;
+        font-size: 13px;
+      }
+      .code {
+        background: #e7f3ff;
+        border-left: 4px solid #667eea;
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 4px;
+      }
+      .code strong {
+        color: #667eea;
+        font-size: 18px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class='email-container'>
+      <div class='header'>
+        <h1>📋 Cotización de Repuestos Automotrices</h1>
+      </div>
+      
+      <div class='content'>
+        <p>Estimado/a <strong>{{clienteNombre}}</strong>,</p>
+        
+        <p>Gracias por confiar en nuestros servicios. Adjuntamos la cotización solicitada:</p>
+        
+        <div class='quote-info'>
+          <p><strong>📦 Código de Cotización:</strong></p>
+          <div class='code'>
+            <strong>{{codigo}}</strong>
+          </div>
+          <p><strong>📅 Fecha:</strong> {{fecha}}</p>
+          <p><strong>👤 Atendido por:</strong> {{vendedorNombre}}</p>
+        </div>
+        
+        <h3 style='color: #667eea; margin-top: 30px;'>Detalle de Productos:</h3>
+        
+        <table>
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Cantidad</th>
+              <th>Precio Unit.</th>
+              <th>Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each items}}
+            <tr>
+              <td>{{this.nombre}}</td>
+              <td>{{this.cantidad}}</td>
+              <td>${{this.precioUnitario}}</td>
+              <td>${{this.subtotal}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+        
+        <div class='total-box'>
+          Total: $<span>{{total}}</span>
+        </div>
+        
+        <p style='margin-top: 30px;'>
+          Esta cotización tiene una validez de 15 días. Para realizar su pedido o consultar disponibilidad, 
+          puede contactarnos a través de nuestros canales de atención.
+        </p>
+        
+        <p>¡Estamos a su disposición para atenderlo!</p>
+        
+        <p>Atentamente,<br><strong>Equipo de Ventas</strong></p>
+      </div>
+      
+      <div class='footer'>
+        <p>Repuestos Automotrices © {{year}}</p>
+        <p>Esta es una prueba de envío de email</p>
+      </div>
+    </div>
+  </body>
+</html>
+

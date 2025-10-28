@@ -1,34 +1,25 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString, MinLength, MaxLength, Matches, IsNotEmpty, IsDate } from 'class-validator';
+import { IsEmail, IsString, MinLength, MaxLength, Matches, IsNotEmpty, IsEnum, IsOptional } from 'class-validator';
 import { MatchPassword } from '../../../../utils/decorators/match-password.decorator';
+import { RolUsuario } from '@prisma/client';
 
 export class AuthRegisterRequestDto {
   @IsString({ message: 'El nombre debe ser una cadena de texto' })
   @IsNotEmpty({ message: 'El nombre es obligatorio' })
   @ApiProperty({
-    example: 'Juan',
-    description: 'Nombre del usuario',
+    example: 'Juan Pérez',
+    description: 'Nombre completo del usuario',
     type: String,
     required: true,
   })
   name: string;
 
-  @IsString({ message: 'El apellido debe ser una cadena de texto' })
-  @IsNotEmpty({ message: 'El apellido es obligatorio' })
-  @ApiProperty({
-    example: 'Perez',
-    description: 'Apellido del usuario',
-    type: String,
-    required: true,
-  })
-  lastName: string;
-
   @IsString({ message: 'El username debe ser una cadena de texto' })
   @IsNotEmpty({ message: 'El username es obligatorio' })
   @ApiProperty({
-    example: 'usuario@ejemplo.com',
+    example: 'juan@ejemplo.com',
     description:
-      'Username del usuario (puede ser email o username normal, debe ser único)',
+      'Username del usuario (puede ser email, debe ser único)',
     type: String,
     required: true,
   })
@@ -37,7 +28,7 @@ export class AuthRegisterRequestDto {
   @IsEmail({}, { message: 'El email debe ser un email válido' })
   @IsNotEmpty({ message: 'El email es obligatorio' })
   @ApiProperty({
-    example: 'usuario@ejemplo.com',
+    example: 'juan@ejemplo.com',
     description: 'Email del usuario (debe ser único)',
     type: String,
     required: true,
@@ -69,6 +60,17 @@ export class AuthRegisterRequestDto {
     required: true,
   })
   confirmPassword: string;
+
+  @IsEnum(RolUsuario)
+  @IsOptional()
+  @ApiProperty({
+    example: 'VENDEDOR',
+    description: 'Rol del usuario',
+    enum: RolUsuario,
+    required: false,
+    default: 'VENDEDOR',
+  })
+  rol?: RolUsuario;
 
  
 }

@@ -3,24 +3,18 @@ import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from 'src/app.module';
 
-const OPENAPI_ENVS = ['local', 'development'];
-
 export function configureOpenAPI(app: INestApplication): OpenAPIObject {
   const configService = app.get(ConfigService);
-  const nodeEnv = configService.get<string>('NODE_ENV');
-
-  if (!nodeEnv || !OPENAPI_ENVS.includes(nodeEnv)) {
-    return {} as OpenAPIObject;
-  }
 
   // Lee las configuraciones desde el .env
-  const title = configService.get<string>('API_TITLE', 'Sistema de Transporte API');
+  const title = configService.get<string>('API_TITLE', 'Sistema de Almacén API');
   const description = configService.get<string>(
     'API_DESCRIPTION',
-    'API para gestión de paquetes y productos de Transporte Juan',
+    'API para gestión de almacén - Productos, Cotizaciones, Ventas y Proveedores',
   );
   const version = configService.get<string>('API_VERSION', '1.0.0');
-  const server = configService.get<string>('API_SERVER', 'http://localhost:3001');
+  const port = configService.get<number>('PORT', 4001);
+  const server = `http://localhost:${port}`;
 
   const config = new DocumentBuilder()
     .setTitle(title)
@@ -46,9 +40,12 @@ export function configureOpenAPI(app: INestApplication): OpenAPIObject {
   });
 
   // Guardar el archivo OpenAPI JSON (opcional, para importación manual)
-  if (nodeEnv === 'development') {
+  try {
     const fs = require('fs');
     fs.writeFileSync('./openapi.json', JSON.stringify(document, null, 2));
+    console.log('✅ OpenAPI document saved to openapi.json');
+  } catch (error) {
+    console.warn('⚠️ Could not save openapi.json:', error);
   }
 
   return document;

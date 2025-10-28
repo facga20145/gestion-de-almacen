@@ -38,22 +38,17 @@ export class AuthRepositoryImpl implements AuthRepositoryPort {
     try {
       const user = await this.prisma.user.findUnique({
         where: { email: request.email },
-        include: { profile: true, roles: true },
       });
 
       if (!user) throw new Error('Usuario no encontrado');
-      if (user.code !== request.code) throw new Error('Código inválido');
-      if (user.codeExpiresAt && user.codeExpiresAt < new Date()) {
-        throw new Error('El código ha expirado');
-      }
 
       const hashedPassword = await bcrypt.hash(request.password, 10);
 
       const payload: JwtPayload = {
-        username: user.username,
+        username: user.email,
         email: user.email,
-        profileId: user.profile?.id!,
-        roleId: user.roles[0]?.roleId!,
+        profileId: user.id,
+        roleId: user.rol,
       };
 
       const tokens = await this.generateTokens(payload);
@@ -61,10 +56,7 @@ export class AuthRepositoryImpl implements AuthRepositoryPort {
       await this.prisma.user.update({
         where: { id: user.id },
         data: {
-          password: hashedPassword,
-          code: null,
-          codeExpiresAt: null,
-          refreshToken: tokens.refreshToken,
+          contraseña: hashedPassword,
         },
       });
 
@@ -82,34 +74,17 @@ export class AuthRepositoryImpl implements AuthRepositoryPort {
     try {
       const user = await this.prisma.user.findUnique({
         where: { email: request.email },
-        include: { profile: true, roles: true },
       });
       if (!user) throw new Error('Usuario no encontrado');
 
       const newCode = generateCode();
-      const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
-
-      await this.prisma.user.update({
-        where: { email: request.email },
-        data: { code: newCode, codeExpiresAt: expiresAt },
-      });
 
       await this.mailerService.sendMail({
         to: user.email,
-        subject: 'Viaja Ya - Verifica tu cuenta',
+        subject: 'Recuperación de contraseña',
         template: 'welcome',
         context: {
-          name: `${user.profile?.name} ${user.profile?.lastName}`,
-          code: newCode,
-          year: new Date().getFullYear(),
-        },
-      });
-      await this.mailerService.sendMail({
-        to: user.email,
-        subject: 'Viaja Ya - Verifica tu cuenta',
-        template: 'welcome',
-        context: {
-          name: `${user.profile?.name} ${user.profile?.lastName}`,
+          name: user.nombre,
           code: newCode,
           year: new Date().getFullYear(),
         },
@@ -126,15 +101,12 @@ export class AuthRepositoryImpl implements AuthRepositoryPort {
 
   async login(request: AuthLoginRequestDto): Promise<AuthLoginResponseDto> {
     return this.prisma.$transaction(async (tx) => {
-      const user = await tx.user.findFirst({
+      const user = await tx.user.findUnique({
         where: {
-          OR: [
-            { username: request.username },
-            { profile: { email: request.username } },
-          ],
+          email: request.username,
         },
-        include: { profile: true, roles: { include: { role: true } } },
       });
+      
       if (!user) {
         throw new UnauthorizedException({
           message: 'Credenciales inválidas',
@@ -143,7 +115,7 @@ export class AuthRepositoryImpl implements AuthRepositoryPort {
 
       const isPasswordValid = await bcrypt.compare(
         request.password,
-        user.password,
+        user.contraseña,
       );
       if (!isPasswordValid) {
         throw new UnauthorizedException({
@@ -152,17 +124,17 @@ export class AuthRepositoryImpl implements AuthRepositoryPort {
       }
 
       const payload: JwtPayload = {
-        username: user.username,
-        email: user.profile?.email!,
-        profileId: user.profile?.id!,
-        roleId: user.roles[0]?.roleId!,
+        username: user.email,
+        email: user.email,
+        profileId: user.id,
+        roleId: user.rol,
       };
 
       const tokens = await this.generateTokens(payload);
 
       await tx.user.update({
         where: { id: user.id },
-        data: { refreshToken: tokens.refreshToken },
+        data: { },
       });
 
       return {
@@ -177,19 +149,13 @@ export class AuthRepositoryImpl implements AuthRepositoryPort {
     request: AuthRegisterRequestDto,
   ): Promise<AuthRegisterResponseDto> {
     try {
-      const { username, password, email, name, lastName } = request;
+      const { username, password, email, name } = request;
 
       return await this.prisma.$transaction(async (tx) => {
-        const existingUser = await tx.user.findUnique({ where: { username } });
-        if (existingUser) {
-          throw new BadRequestException({
-            message: 'El usuario ya existe',
-          });
-        }
-        const existingProfile = await tx.profile.findUnique({
-          where: { email },
+        const existingUser = await tx.user.findUnique({ 
+          where: { email } 
         });
-        if (existingProfile) {
+        if (existingUser) {
           throw new BadRequestException({
             message: 'El email ya está en uso',
           });
@@ -197,56 +163,27 @@ export class AuthRepositoryImpl implements AuthRepositoryPort {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        let defaultRole = await tx.role.findFirst({
-          where: { name: 'user' },
-        });
-
-        if (!defaultRole) {
-          defaultRole = await tx.role.create({
-            data: {
-              name: 'user',
-            },
-          });
-        }
-
         const user = await tx.user.create({
           data: {
-            username,
-            password: hashedPassword,
+            nombre: name,
             email,
-            profile: {
-              create: {
-                email,
-                name,
-                lastName,
-              },
-            },
-            roles: {
-              create: [
-                {
-                  roleId: defaultRole.id,
-                },
-              ],
-            },
-          },
-          include: {
-            profile: true,
-            roles: { include: { role: true } },
+            contraseña: hashedPassword,
+            rol: 'VENDEDOR', // Por defecto VENDEDOR, solo ADMIN puede cambiar
           },
         });
 
         const payload: JwtPayload = {
-          username: user.username,
-          email: user.profile?.email!,
-          profileId: user.profile?.id!,
-          roleId: user.roles[0]?.roleId!,
+          username: user.email,
+          email: user.email,
+          profileId: user.id,
+          roleId: user.rol,
         };
 
         const tokens = await this.generateTokens(payload);
 
         await tx.user.update({
           where: { id: user.id },
-          data: { refreshToken: tokens.refreshToken },
+          data: { },
         });
 
         return {
@@ -274,7 +211,7 @@ export class AuthRepositoryImpl implements AuthRepositoryPort {
 
       const user = await this.prisma.user.findUnique({
         where: { id: payload.profileId },
-        select: { id: true, refreshToken: true },
+        select: { id: true },
       });
 
       if (!user) {
@@ -287,7 +224,7 @@ export class AuthRepositoryImpl implements AuthRepositoryPort {
 
       await this.prisma.user.update({
         where: { id: user.id },
-        data: { refreshToken: tokens.refreshToken },
+        data: { },
       });
       return {
         message: 'Token renovado exitosamente',

@@ -26,11 +26,14 @@ export class UsersRepositoryImpl implements UsersRepositoryPort {
   async findOne(id: string): Promise<UsersFindOneResponseDto> {
     try {
       const user = await this.prisma.user.findUnique({
-        where: { id },
+        where: { id: parseInt(id) },
         select: {
           id: true,
-          username: true,
-          status: true,
+          nombre: true,
+          email: true,
+          rol: true,
+          activo: true,
+          fechaRegistro: true,
           createdAt: true,
           updatedAt: true,
         },
@@ -43,10 +46,13 @@ export class UsersRepositoryImpl implements UsersRepositoryPort {
       return {
         message: 'User found successfully',
         id: user.id,
-        username: user.username,
-        status: user.status,
+        nombre: user.nombre,
+        email: user.email,
+        rol: user.rol,
+        activo: user.activo,
+        fechaRegistro: user.fechaRegistro.toISOString(),
         createdAt: user.createdAt.toISOString(),
-        updatedAt: user.updatedAt?.toISOString(),
+        updatedAt: user.updatedAt.toISOString(),
         status_code: HttpStatus.OK,
       };
     } catch (e) {
@@ -77,10 +83,9 @@ export class UsersRepositoryImpl implements UsersRepositoryPort {
   ): Promise<UsersUpdateStatusResponseDto> {
     try {
       await this.prisma.user.update({
-        where: { id },
+        where: { id: parseInt(id) },
         data: {
-          status,
-          updatedAt: new Date(),
+          activo: status,
         },
       });
 
@@ -90,7 +95,7 @@ export class UsersRepositoryImpl implements UsersRepositoryPort {
       };
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {
-        if (e.code === 'P205') {
+        if (e.code === 'P2025') {
           throw new NotFoundException('User not found');
         }
       }
@@ -110,7 +115,13 @@ export class UsersRepositoryImpl implements UsersRepositoryPort {
         ? {
             OR: [
               {
-                username: {
+                nombre: {
+                  contains: params.search,
+                  mode: Prisma.QueryMode.insensitive,
+                },
+              },
+              {
+                email: {
                   contains: params.search,
                   mode: Prisma.QueryMode.insensitive,
                 },
@@ -124,11 +135,14 @@ export class UsersRepositoryImpl implements UsersRepositoryPort {
           where,
           skip,
           take: limit,
-          orderBy: { createdAt: 'desc' },
+          orderBy: { fechaRegistro: 'desc' },
           select: {
             id: true,
-            username: true,
-            status: true,
+            nombre: true,
+            email: true,
+            rol: true,
+            activo: true,
+            fechaRegistro: true,
             createdAt: true,
             updatedAt: true,
           },
@@ -140,10 +154,13 @@ export class UsersRepositoryImpl implements UsersRepositoryPort {
         items: items.map((user) => ({
           message: 'User found successfully',
           id: user.id,
-          username: user.username,
-          status: user.status,
+          nombre: user.nombre,
+          email: user.email,
+          rol: user.rol,
+          activo: user.activo,
+          fechaRegistro: user.fechaRegistro.toISOString(),
           createdAt: user.createdAt.toISOString(),
-          updatedAt: user.updatedAt?.toISOString() || null,
+          updatedAt: user.updatedAt.toISOString(),
           status_code: HttpStatus.OK,
         })),
         currentPage: page,
