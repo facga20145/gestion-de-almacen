@@ -14,6 +14,15 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   app.enableCors();
   app.useGlobalFilters(new AllExceptionsFilter());
+  
+  // Logging interceptor para todas las peticiones
+  app.use((req: any, res: any, next: any) => {
+    logger.log(` ${req.method} ${req.originalUrl}`);
+    if (req.body && Object.keys(req.body).length > 0) {
+      logger.log(` Body: ${JSON.stringify(req.body)}`);
+    }
+    next();
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({
