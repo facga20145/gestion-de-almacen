@@ -1,0 +1,14 @@
+import { Inject, Injectable } from '@nestjs/common';
+import { ProfilesFindPaginatedService } from '../../../domain/services/queries/profiles-find-paginated.service';
+import { ProfilesPaginatedResponseDto } from '../../dtos/profiles-paginated-response.dto';
+
+@Injectable()
+export class ProfilesFindPaginatedUseCase {
+  constructor(
+      @Inject('IProfilesFindPaginated') private service: ProfilesFindPaginatedService,
+    ) {}
+
+  async execute(params: { index: number; limit: number; search?: string }): Promise<ProfilesPaginatedResponseDto> {
+    return this.service.findPaginated(params);
+  }
+}

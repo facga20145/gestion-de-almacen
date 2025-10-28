@@ -1,0 +1,192 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================
+// ENUMS
+// =============================
+
+enum RolUsuario {
+  ADMIN
+  VENDEDOR
+}
+
+enum EstadoCotizacion {
+  PENDIENTE
+  ENVIADA
+  ACEPTADA
+  RECHAZADA
+}
+
+enum EstadoEmail {
+  ENVIADO
+  ERROR
+}
+
+enum MetodoPago {
+  EFECTIVO
+  TRANSFERENCIA
+  TARJETA
+  CREDITO
+}
+
+// =============================
+// MODELOS
+// =============================
+
+// ---------- USUARIO ----------
+model User {
+  id             Int             @id @default(autoincrement())
+  nombre         String
+  email          String          @unique
+  contraseña     String
+  rol            RolUsuario      @default(VENDEDOR)
+  activo         Boolean         @default(true)
+  fechaRegistro  DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  createdAt      DateTime        @default(now())
+
+  cotizaciones   Quote[]
+  ventas         Sale[]
+  logsEmails     LogEmail[]
+
+  @@map("users")
+}
+
+// ---------- PROVEEDOR ----------
+model Supplier {
+  id              Int             @id @default(autoincrement())
+  nombre          String
+  telefono        String?
+  email           String?
+  direccion       String?
+  activo          Boolean         @default(true)
+  fechaRegistro   DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  createdAt       DateTime        @default(now())
+
+  productos       Product[]
+
+  @@map("suppliers")
+}
+
+// ---------- PRODUCTO (REPUESTOS) ----------
+model Product {
+  id              Int             @id @default(autoincrement())
+  nombre          String
+  descripcion     String?
+  precio          Decimal         @db.Decimal(10, 2)
+  stock           Int             @default(0)
+  categoria       String?
+  activo          Boolean         @default(true)
+  fechaRegistro   DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  createdAt       DateTime        @default(now())
+
+  proveedorId     Int
+  proveedor       Supplier        @relation(fields: [proveedorId], references: [id], onDelete: Cascade)
+
+  cotizacionItems QuoteItem[]
+  itemsVenta      SaleItem[]
+
+  @@map("products")
+}
+
+// ---------- COTIZACIÓN ----------
+model Quote {
+  id                Int                 @id @default(autoincrement())
+  codigo            String              @unique
+  clienteNombre     String
+  clienteEmail      String
+  fecha             DateTime            @default(now())
+  total             Decimal             @db.Decimal(10, 2)
+  estado            EstadoCotizacion    @default(PENDIENTE)
+  fechaRegistro     DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  createdAt         DateTime            @default(now())
+
+  usuarioId         Int
+  usuario           User                @relation(fields: [usuarioId], references: [id])
+
+  items             QuoteItem[]
+  ventas            Sale[]
+
+  @@map("quotes")
+}
+
+// ---------- ITEM DE COTIZACIÓN ----------
+model QuoteItem {
+  id                Int                 @id @default(autoincrement())
+  cantidad          Int
+  precioUnitario    Decimal             @db.Decimal(10, 2)
+  subtotal          Decimal             @db.Decimal(10, 2)
+
+  quoteId           Int
+  quote             Quote               @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  productId         Int
+  product           Product             @relation(fields: [productId], references: [id])
+
+  @@map("quote_items")
+}
+
+// ---------- VENTA ----------
+model Sale {
+  id                Int                 @id @default(autoincrement())
+  fecha             DateTime            @default(now())
+  total             Decimal             @db.Decimal(10, 2)
+  metodoPago        MetodoPago
+  clienteNombre     String
+  clienteEmail      String?
+  clienteTelefono   String?
+  cotizacionId      Int?
+  fechaRegistro     DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  createdAt         DateTime            @default(now())
+
+  usuarioId         Int
+  usuario           User                @relation(fields: [usuarioId], references: [id])
+
+  cotizacion        Quote?              @relation(fields: [cotizacionId], references: [id])
+
+  items             SaleItem[]
+
+  @@map("sales")
+}
+
+// ---------- ITEM DE VENTA ----------
+model SaleItem {
+  id                Int                 @id @default(autoincrement())
+  cantidad          Int
+  precioUnitario    Decimal             @db.Decimal(10, 2)
+  subtotal          Decimal             @db.Decimal(10, 2)
+
+  saleId            Int
+  sale              Sale                @relation(fields: [saleId], references: [id], onDelete: Cascade)
+
+  productId         Int
+  product           Product             @relation(fields: [productId], references: [id])
+
+  @@map("sale_items")
+}
+
+// ---------- LOG DE EMAIL ----------
+model LogEmail {
+  id                Int                 @id @default(autoincrement())
+  emailDestino      String
+  asunto            String
+  fechaEnvio        DateTime            @default(now())
+  estado            EstadoEmail
+  mensajeError      String?
+  cotizacionId      Int?
+
+  usuarioId         Int?
+  usuario           User?               @relation(fields: [usuarioId], references: [id])
+
+  @@map("log_emails")
+}
