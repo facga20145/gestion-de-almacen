@@ -211,6 +211,22 @@
         ]
       }
     },
+    "/api/user": {
+      "get": {
+        "description": "Endpoint to get all users without pagination",
+        "operationId": "UsersController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Users retrieved successfully"
+          }
+        },
+        "summary": "List all users",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
     "/api/user/paginated": {
       "get": {
         "description": "Endpoint to list all users with pagination support",
@@ -1094,7 +1110,7 @@
   "tags": [],
   "servers": [
     {
-      "url": "http://localhost:4000",
+      "url": "http://localhost:4001",
       "description": "Servidor Local"
     }
   ],

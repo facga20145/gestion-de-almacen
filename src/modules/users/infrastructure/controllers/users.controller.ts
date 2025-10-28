@@ -39,7 +39,6 @@ import { UsersFindPaginatedUseCase } from '../../application/use-cases/queries/u
 import { AuthGuard } from 'src/utils/guards/auth.guard';
 
 @Controller('user')
-@UseGuards(AuthGuard)
 @UseInterceptors(CustomResponseInterceptor)
 export class UsersController {
   constructor(
@@ -47,6 +46,20 @@ export class UsersController {
     private readonly updateStatusUseCase: UsersUpdateStatusUseCase,
     private readonly findPaginatedUseCase: UsersFindPaginatedUseCase,
   ) {}
+
+  @Get()
+  @ApiOperation({
+    summary: 'List all users',
+    description: 'Endpoint to get all users without pagination',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Users retrieved successfully',
+  })
+  async findAll() {
+    // Usar findPaginated con límite muy alto para obtener todos
+    return this.findPaginatedUseCase.execute({ index: 1, limit: 1000 });
+  }
 
   
   @Get('paginated')
