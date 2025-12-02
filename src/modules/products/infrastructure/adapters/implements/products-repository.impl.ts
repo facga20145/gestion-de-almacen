@@ -12,10 +12,10 @@ import { ProductsCreateResponseDto } from 'src/modules/products/application/dtos
 import { ProductsUpdateRequestDto } from 'src/modules/products/application/dtos/products-update-request.dto';
 import { ProductsUpdateResponseDto } from 'src/modules/products/application/dtos/products-update-response.dto';
 import { Prisma } from '@prisma/client';
-  
+
 @Injectable()
 export class ProductsRepositoryImpl implements ProductsRepositoryPort {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(request: ProductsCreateRequestDto): Promise<ProductsCreateResponseDto> {
     try {
@@ -156,8 +156,10 @@ export class ProductsRepositoryImpl implements ProductsRepositoryPort {
       const limit = Math.max(1, Math.min(100, Number(params.limit ?? 10)));
       const skip = (page - 1) * limit;
 
-      const where: Prisma.ProductWhereInput = params.search
-        ? {
+      const where: Prisma.ProductWhereInput = {
+        activo: true,
+        ...(params.search
+          ? {
             OR: [
               {
                 nombre: {
@@ -173,7 +175,8 @@ export class ProductsRepositoryImpl implements ProductsRepositoryPort {
               },
             ],
           }
-        : {};
+          : {}),
+      };
 
       const [items, totalItems] = await this.prisma.$transaction([
         this.prisma.product.findMany({

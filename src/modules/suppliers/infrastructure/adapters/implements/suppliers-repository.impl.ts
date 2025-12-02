@@ -15,7 +15,7 @@ import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class SuppliersRepositoryImpl implements SuppliersRepositoryPort {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(request: SuppliersCreateRequestDto): Promise<SuppliersCreateResponseDto> {
     try {
@@ -144,8 +144,10 @@ export class SuppliersRepositoryImpl implements SuppliersRepositoryPort {
       const limit = Math.max(1, Math.min(100, Number(params.limit ?? 10)));
       const skip = (page - 1) * limit;
 
-      const where: Prisma.SupplierWhereInput = params.search
-        ? {
+      const where: Prisma.SupplierWhereInput = {
+        activo: true,
+        ...(params.search
+          ? {
             OR: [
               {
                 nombre: {
@@ -161,7 +163,8 @@ export class SuppliersRepositoryImpl implements SuppliersRepositoryPort {
               },
             ],
           }
-        : {};
+          : {}),
+      };
 
       const [items, totalItems] = await this.prisma.$transaction([
         this.prisma.supplier.findMany({
