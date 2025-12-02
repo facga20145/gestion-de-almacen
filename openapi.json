@@ -1803,6 +1803,11 @@
             "type": "string",
             "example": "juan@email.com"
           },
+          "usuarioId": {
+            "type": "number",
+            "example": 1,
+            "description": "ID del usuario que crea la cotización (opcional, se obtiene del JWT si no se envía)"
+          },
           "items": {
             "example": [
               {

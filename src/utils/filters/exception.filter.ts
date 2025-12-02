@@ -16,8 +16,14 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse();
 
+    // Log detallado en consola para depurar fácilmente
+    // (incluye stack de Prisma, Validations, etc.)
+    // Esto no se envía al cliente, solo al servidor.
+    // eslint-disable-next-line no-console
+    console.error('🔥 Global exception caught:', exception);
+
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
-    let message = 'Error interno';
+    let message: any = 'Error interno';
 
     if (exception instanceof HttpException) {
       status = exception.getStatus();

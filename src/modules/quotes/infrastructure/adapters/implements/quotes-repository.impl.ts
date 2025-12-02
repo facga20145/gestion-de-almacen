@@ -14,7 +14,7 @@ import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class QuotesRepositoryImpl implements QuotesRepositoryPort {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   // Función para generar código de cotización
   private generateQuoteCode(): string {
@@ -25,6 +25,15 @@ export class QuotesRepositoryImpl implements QuotesRepositoryPort {
 
   async create(request: QuotesCreateRequestDto, usuarioId: number): Promise<QuotesCreateResponseDto> {
     try {
+      // Verificar que el usuario existe antes de crear la cotización
+      const usuario = await this.prisma.user.findUnique({
+        where: { id: usuarioId },
+      });
+
+      if (!usuario) {
+        throw new NotFoundException(`User with ID ${usuarioId} not found for quote creation`);
+      }
+
       // Calcular el total
       const total = request.items.reduce((sum, item) => {
         return sum + (item.cantidad * item.precioUnitario);
@@ -198,27 +207,27 @@ export class QuotesRepositoryImpl implements QuotesRepositoryPort {
 
       const where: Prisma.QuoteWhereInput = params.search
         ? {
-            OR: [
-              {
-                clienteNombre: {
-                  contains: params.search,
-                  mode: Prisma.QueryMode.insensitive,
-                },
+          OR: [
+            {
+              clienteNombre: {
+                contains: params.search,
+                mode: Prisma.QueryMode.insensitive,
               },
-              {
-                clienteEmail: {
-                  contains: params.search,
-                  mode: Prisma.QueryMode.insensitive,
-                },
+            },
+            {
+              clienteEmail: {
+                contains: params.search,
+                mode: Prisma.QueryMode.insensitive,
               },
-              {
-                codigo: {
-                  contains: params.search,
-                  mode: Prisma.QueryMode.insensitive,
-                },
+            },
+            {
+              codigo: {
+                contains: params.search,
+                mode: Prisma.QueryMode.insensitive,
               },
-            ],
-          }
+            },
+          ],
+        }
         : {};
 
       const [items, totalItems] = await this.prisma.$transaction([

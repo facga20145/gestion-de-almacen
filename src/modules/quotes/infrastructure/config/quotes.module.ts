@@ -12,9 +12,10 @@ import { QuotesFindOneUseCase } from '../../application/use-cases/queries/quotes
 import { QuotesFindAllUseCase } from '../../application/use-cases/queries/quotes-find-all.use-case';
 import { QuotesRepositoryImpl } from '../adapters/implements/quotes-repository.impl';
 import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from 'src/modules/auth/infrastructure/config/auth.module';
 
 @Module({
-  imports: [ConfigModule],
+  imports: [ConfigModule, AuthModule],
   controllers: [QuotesController],
   providers: [
     // Services

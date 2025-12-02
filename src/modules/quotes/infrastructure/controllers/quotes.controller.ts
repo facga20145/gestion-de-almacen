@@ -1,4 +1,18 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Query, UseInterceptors, Req, Injectable } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseInterceptors,
+  Req,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
   ApiErrorResponses,
@@ -6,6 +20,7 @@ import {
 } from 'src/utils/decorators/api-swagger.decorator';
 import { EmailService } from 'src/utils/email.service';
 import { ConfigService } from '@nestjs/config';
+import { AuthGuard } from 'src/utils/guards/auth.guard';
 
 // Use cases
 import { QuotesCreateUseCase } from '../../application/use-cases/commands/quotes-create.use-case';
@@ -24,6 +39,7 @@ import { SendEmailQuoteDto } from '../../application/dtos/send-email-quote.dto';
 import { CustomResponseInterceptor } from 'src/utils/interceptors/customresponse.interceptor';
 
 @ApiTags('Quotes')
+@UseGuards(AuthGuard)
 @UseInterceptors(CustomResponseInterceptor)
 @Controller('quotes')
 export class QuotesController {
@@ -35,9 +51,9 @@ export class QuotesController {
     private readonly findAllUseCase: QuotesFindAllUseCase,
     private readonly emailService: EmailService,
     private readonly configService: ConfigService,
-  ) {}
-  
-  
+  ) { }
+
+
   @Post('send-email')
   @ApiOperation({
     summary: 'Enviar cotización por email',
@@ -55,17 +71,17 @@ export class QuotesController {
     try {
       console.log('📧 Intentando enviar email a:', request.emailDestino);
       console.log('📋 Cotización:', request.codigo);
-      
+
       // Generar HTML de la cotización
       const html = this.generateQuoteHTML(request);
-      
+
       // Enviar email usando el servicio de OAuth2
       const result = await this.emailService.sendEmail(
         request.emailDestino,
         `Cotización de Repuestos - ${request.codigo}`,
         html
       );
-      
+
       return {
         message: 'Email enviado correctamente',
         emailDestino: request.emailDestino,
@@ -75,6 +91,67 @@ export class QuotesController {
       };
     } catch (error) {
       console.error('Error sending email:', error);
+      return {
+        message: 'Error al enviar el email',
+        error: error.message,
+        status_code: HttpStatus.INTERNAL_SERVER_ERROR,
+      };
+    }
+  }
+
+  @Post(':id/send-email')
+  @ApiOperation({
+    summary: 'Enviar cotización por email por ID',
+    description: 'Envía por email la cotización indicada usando su ID. Obtiene todos los datos desde la base de datos.',
+  })
+  @ApiErrorResponses(
+    HttpStatus.BAD_REQUEST,
+    HttpStatus.NOT_FOUND,
+    HttpStatus.INTERNAL_SERVER_ERROR,
+  )
+  @ApiSuccessResponse(
+    HttpStatus.OK,
+    'Email enviado correctamente',
+  )
+  async sendEmailById(@Param('id') id: string, @Req() req: any) {
+    try {
+      const quote = await this.findOneUseCase.run(parseInt(id));
+
+      const emailRequest: SendEmailQuoteDto = {
+        emailDestino: quote.clienteEmail,
+        clienteNombre: quote.clienteNombre,
+        codigo: quote.codigo,
+        fecha: quote.fecha,
+        vendedorNombre:
+          quote.usuario?.nombre ||
+          quote.usuario?.email ||
+          req.user?.email ||
+          'Vendedor',
+        total: quote.total,
+        items: quote.items.map((item: any) => ({
+          nombre: item.product?.nombre || 'Producto',
+          cantidad: item.cantidad,
+          precioUnitario: item.precioUnitario,
+          subtotal: item.subtotal,
+        })),
+      };
+
+      const html = this.generateQuoteHTML(emailRequest);
+      const result = await this.emailService.sendEmail(
+        emailRequest.emailDestino,
+        `Cotización de Repuestos - ${emailRequest.codigo}`,
+        html,
+      );
+
+      return {
+        message: 'Email enviado correctamente',
+        emailDestino: emailRequest.emailDestino,
+        codigo: emailRequest.codigo,
+        messageId: result.messageId,
+        status_code: HttpStatus.OK,
+      };
+    } catch (error) {
+      console.error('Error sending email by ID:', error);
       return {
         message: 'Error al enviar el email',
         error: error.message,
@@ -269,8 +346,59 @@ export class QuotesController {
     HttpStatus.INTERNAL_SERVER_ERROR,
   )
   async create(@Body() request: QuotesCreateRequestDto, @Req() req: any) {
-    const usuarioId = req.user?.profileId || 1; // TODO: Obtener del JWT
-    return await this.createUseCase.run(request, usuarioId);
+    try {
+      // Siempre obtener el usuario desde el JWT para evitar depender de seeds o datos enviados por el frontend
+      const usuarioId = req.user?.profileId;
+
+      if (!usuarioId) {
+        throw new UnauthorizedException(
+          'No se pudo determinar el usuario autenticado para la cotización',
+        );
+      }
+
+      const result = await this.createUseCase.run(request, usuarioId);
+
+      // Enviar correo automáticamente después de crear la cotización
+      try {
+        const quote = await this.findOneUseCase.run(result.id);
+
+        const emailRequest: SendEmailQuoteDto = {
+          emailDestino: quote.clienteEmail,
+          clienteNombre: quote.clienteNombre,
+          codigo: quote.codigo,
+          fecha: quote.fecha,
+          vendedorNombre:
+            quote.usuario?.nombre ||
+            quote.usuario?.email ||
+            req.user?.email ||
+            'Vendedor',
+          total: quote.total,
+          items: quote.items.map((item: any) => ({
+            nombre: item.product?.nombre || 'Producto',
+            cantidad: item.cantidad,
+            precioUnitario: item.precioUnitario,
+            subtotal: item.subtotal,
+          })),
+        };
+
+        const html = this.generateQuoteHTML(emailRequest);
+        await this.emailService.sendEmail(
+          emailRequest.emailDestino,
+          `Cotización de Repuestos - ${emailRequest.codigo}`,
+          html,
+        );
+      } catch (emailError) {
+        // eslint-disable-next-line no-console
+        console.error('❌ Error al enviar email de cotización:', emailError);
+        // No rompemos la creación de la cotización si el correo falla
+      }
+
+      return result;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('❌ Error al crear cotización:', error);
+      throw error;
+    }
   }
 
   @Get(':id')
