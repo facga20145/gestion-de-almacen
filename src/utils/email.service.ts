@@ -21,6 +21,9 @@ export class EmailService {
         user: EMAIL_USER,
         pass: EMAIL_APP_PASSWORD, // Esta es tu App Password, no tu contraseña normal
       },
+      connectionTimeout: 30000, // 30 segundos para conectar
+      socketTimeout: 30000, // 30 segundos para operaciones
+      greetingTimeout: 30000, // 30 segundos para saludo SMTP
     });
   }
 

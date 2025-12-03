@@ -358,40 +358,45 @@ export class QuotesController {
 
       const result = await this.createUseCase.run(request, usuarioId);
 
-      // Enviar correo automáticamente después de crear la cotización
-      try {
-        const quote = await this.findOneUseCase.run(result.id);
+      // Enviar correo automáticamente después de crear la cotización (asíncrono, no bloquea la respuesta)
+      // Usamos setImmediate para ejecutar en el siguiente tick del event loop
+      setImmediate(async () => {
+        try {
+          const quote = await this.findOneUseCase.run(result.id);
 
-        const emailRequest: SendEmailQuoteDto = {
-          emailDestino: quote.clienteEmail,
-          clienteNombre: quote.clienteNombre,
-          codigo: quote.codigo,
-          fecha: quote.fecha,
-          vendedorNombre:
-            quote.usuario?.nombre ||
-            quote.usuario?.email ||
-            req.user?.email ||
-            'Vendedor',
-          total: quote.total,
-          items: quote.items.map((item: any) => ({
-            nombre: item.product?.nombre || 'Producto',
-            cantidad: item.cantidad,
-            precioUnitario: item.precioUnitario,
-            subtotal: item.subtotal,
-          })),
-        };
+          const emailRequest: SendEmailQuoteDto = {
+            emailDestino: quote.clienteEmail,
+            clienteNombre: quote.clienteNombre,
+            codigo: quote.codigo,
+            fecha: quote.fecha,
+            vendedorNombre:
+              quote.usuario?.nombre ||
+              quote.usuario?.email ||
+              req.user?.email ||
+              'Vendedor',
+            total: quote.total,
+            items: quote.items.map((item: any) => ({
+              nombre: item.product?.nombre || 'Producto',
+              cantidad: item.cantidad,
+              precioUnitario: item.precioUnitario,
+              subtotal: item.subtotal,
+            })),
+          };
 
-        const html = this.generateQuoteHTML(emailRequest);
-        await this.emailService.sendEmail(
-          emailRequest.emailDestino,
-          `Cotización de Repuestos - ${emailRequest.codigo}`,
-          html,
-        );
-      } catch (emailError) {
-        // eslint-disable-next-line no-console
-        console.error('❌ Error al enviar email de cotización:', emailError);
-        // No rompemos la creación de la cotización si el correo falla
-      }
+          const html = this.generateQuoteHTML(emailRequest);
+          await this.emailService.sendEmail(
+            emailRequest.emailDestino,
+            `Cotización de Repuestos - ${emailRequest.codigo}`,
+            html,
+          );
+          // eslint-disable-next-line no-console
+          console.log('✅ Email de cotización enviado en segundo plano');
+        } catch (emailError) {
+          // eslint-disable-next-line no-console
+          console.error('❌ Error al enviar email de cotización (no afecta la creación):', emailError);
+          // No rompemos la creación de la cotización si el correo falla
+        }
+      });
 
       return result;
     } catch (error) {
