@@ -11,6 +11,15 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
+  // Health check route (sin prefijo 'api' para Render)
+  app.getHttpAdapter().get('/', (req: any, res: any) => {
+    res.json({ 
+      status: 'ok', 
+      message: 'API is running',
+      timestamp: new Date().toISOString()
+    });
+  });
+
   app.setGlobalPrefix('api');
   app.enableCors();
   app.useGlobalFilters(new AllExceptionsFilter());
