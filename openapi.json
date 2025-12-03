@@ -757,6 +757,40 @@
         ]
       }
     },
+    "/api/quotes/{id}/send-email": {
+      "post": {
+        "description": "Envía por email la cotización indicada usando su ID. Obtiene todos los datos desde la base de datos.",
+        "operationId": "QuotesController_sendEmailById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Email enviado correctamente"
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "404": {
+            "description": "Recurso no encontrado"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        },
+        "summary": "Enviar cotización por email por ID",
+        "tags": [
+          "Quotes"
+        ]
+      }
+    },
     "/api/quotes": {
       "post": {
         "description": "Permite crear una nueva cotización con código único",
